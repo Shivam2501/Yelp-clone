@@ -11,6 +11,7 @@ import UIKit
 class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
     var businesses: [Business]!
+    var filteredbusiness: [Business]!
     
     @IBOutlet weak var tableView: UITableView!
    
@@ -26,13 +27,14 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
+        searchBar.placeholder = "Enter search term"
     
         searchBar.delegate = self
         
         Business.searchWithTerm("Thai", completion: { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
+            self.filteredbusiness = businesses;
             self.tableView.reloadData();
-            
             for business in businesses {
                 print(business.name!)
                 print(business.address!)
@@ -57,8 +59,8 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     }
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if businesses != nil{
-            return businesses!.count
+        if filteredbusiness != nil{
+            return filteredbusiness!.count
         }else{
             return 0;
         }
@@ -67,7 +69,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("BusinessCell", forIndexPath: indexPath) as! BusinessCellTableViewCell
         
-        cell.business = businesses[indexPath.row]
+        cell.business = filteredbusiness[indexPath.row]
         
         return cell
     }
@@ -80,6 +82,22 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         searchBar.showsCancelButton = false;
         searchBar.text = "";
         searchBar.resignFirstResponder()
+    }
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty{
+            filteredbusiness = businesses
+        }else{
+            filteredbusiness = businesses.filter({ (business: Business) -> Bool in
+                
+                if business.name!.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil{
+                        return true
+                }else{
+                    return false
+                }
+            })
+        }
+        tableView.reloadData()
     }
     
     /*
