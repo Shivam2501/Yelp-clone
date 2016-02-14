@@ -8,11 +8,14 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
     var businesses: [Business]!
     
     @IBOutlet weak var tableView: UITableView!
+   
+    var searchBar = UISearchBar()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -20,6 +23,11 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.dataSource = self;
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
+        
+        searchBar.sizeToFit()
+        navigationItem.titleView = searchBar
+    
+        searchBar.delegate = self
         
         Business.searchWithTerm("Thai", completion: { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
@@ -63,6 +71,17 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         
         return cell
     }
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true;
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false;
+        searchBar.text = "";
+        searchBar.resignFirstResponder()
+    }
+    
     /*
     // MARK: - Navigation
 
