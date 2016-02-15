@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UIScrollViewDelegate {
 
     var businesses: [Business]!
     var filteredbusiness: [Business]!
@@ -16,6 +16,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     @IBOutlet weak var tableView: UITableView!
    
     var searchBar = UISearchBar()
+    var isMoreDataLoading = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +28,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
-        searchBar.placeholder = "Enter search term"
+        searchBar.placeholder = "Restaurants"
     
         searchBar.delegate = self
         
@@ -100,14 +101,39 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.reloadData()
     }
     
-    /*
+    func loadMoreData(){
+        self.isMoreDataLoading = false
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if(!isMoreDataLoading){
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffset = scrollViewContentHeight - tableView.bounds.size.height
+            
+            if(scrollView.contentSize.height > scrollOffset && tableView.dragging){
+                isMoreDataLoading = true
+                
+                loadMoreData()
+            }
+            
+        }
+    }
+    
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        let cell = sender as! UITableViewCell
+        let indexPath = tableView.indexPathForCell(cell)
+        let business = businesses![indexPath!.row]
+        
+        let mapViewController = segue.destinationViewController as! MapViewController
+        mapViewController.business = business
+        
     }
-    */
+    
 
 }
